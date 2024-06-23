@@ -8,7 +8,7 @@ conda activate bdr_diffusion
 conda install pytorch==1.9.0 torchvision==0.10.0 cudatoolkit=11.3 -c pytorch -c conda-forge
 
 
-pip install tqdm fire einops trimesh ocnn scikit-image==0.18.2 scikit-learn==0.24.2 pytorch-lightning==1.6.1
+pip install tqdm fire einops ocnn scikit-image==0.18.2 scikit-learn==0.24.2 pytorch-lightning==1.6.1
 ```
 
 ## Usage
@@ -22,6 +22,10 @@ bash scripts/train.sh
 ```
 bash scripts/generate.sh
 ```
+
+### Datasets
+
+https://rec.ustc.edu.cn/share/b9e072b0-306a-11ef-91cb-dfb6325d6cc5
 
 
 

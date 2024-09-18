@@ -4,7 +4,8 @@ from network.model_trainer import DiffusionModel
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning import seed_everything
-from pytorch_lightning.plugins import DDPPlugin
+# from pytorch_lightning.plugins import DDPPlugin
+from pytorch_lightning.strategies import DDPStrategy
 from utils.utils import exists
 from pytorch_lightning import loggers as pl_loggers
 from utils.utils import ensure_directory, run, get_tensorboard_dir, find_best_epoch
@@ -136,7 +137,7 @@ def train_from_folder(
     if in_azure:
         trainer = Trainer(devices=-1,
                           accelerator="gpu",
-                          strategy=DDPPlugin(
+                          strategy=DDPStrategy(
                               find_unused_parameters=find_unused_parameters),
                           logger=tb_logger,
                           max_epochs=training_epoch,
@@ -145,7 +146,7 @@ def train_from_folder(
     else:
         trainer = Trainer(devices=-1,
                           accelerator="gpu",
-                          strategy=DDPPlugin(
+                          strategy=DDPStrategy(
                               find_unused_parameters=find_unused_parameters),
                           logger=tb_logger,
                           max_epochs=training_epoch,

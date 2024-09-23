@@ -45,6 +45,7 @@ def train_from_folder(
     vit_global: bool = False,
     vit_local: bool = True,
     split_dataset: bool = False,
+
     elevation_zero: bool = False,
     detail_view: bool = False,
 ):

@@ -18,10 +18,14 @@ class UNetModel(nn.Module):
                  image_condition_dim: int = VIT_FEATURE_CHANNEL,
                  text_condition_dim: int = CLIP_FEATURE_CHANNEL,
                  kernel_size: float = 1.0,
+                 use_sketch_condition: bool = True,
+                 use_text_condition: bool = True,
                  vit_global: bool = False,
                  vit_local: bool = True,
                  ):
         super().__init__()
+        self.use_sketch_condition = use_sketch_condition
+        self.use_text_condition = use_text_condition
         channels = [base_channels, *
                     map(lambda m: base_channels * m, dim_mults)]
         in_out = list(zip(channels[:-1], channels[1:]))
@@ -74,8 +78,8 @@ class UNetModel(nn.Module):
             res = image_size // ds
             use_cross = (res == 4 or res == 8)
             self.downs.append(nn.ModuleList([
-                ResnetBlock1(world_dims, dim_in, dim_out,
-                            emb_dim=emb_dim, dropout=dropout, ),our_Identity(),
+                ResnetBlock1(world_dims, dim_in, dim_out, emb_dim=emb_dim, dropout=dropout, ),
+                our_Identity(),
                 nn.Sequential(
                     normalization(dim_out),
                     activation_function(),

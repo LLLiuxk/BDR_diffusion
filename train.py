@@ -4,16 +4,16 @@ from network.model_trainer import DiffusionModel
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning import seed_everything
-# from pytorch_lightning.plugins import DDPPlugin
-from pytorch_lightning.strategies import DDPStrategy
+from pytorch_lightning.plugins import DDPPlugin
+# from pytorch_lightning.strategies import DDPStrategy
 from utils.utils import exists
 from pytorch_lightning import loggers as pl_loggers
 from utils.utils import ensure_directory, run, get_tensorboard_dir, find_best_epoch
 from utils.shapenet_utils import snc_category_to_synth_id_all
-
-
+import torch
+print(torch.cuda.device_count())
 def train_from_folder(
-    img_folder: str = "/home/D/dataset/",
+    img_folder: str = "/home/dataset/",
     data_class: str = "chair",
     results_folder: str = './results',
     name: str = "model",
@@ -138,7 +138,7 @@ def train_from_folder(
     if in_azure:
         trainer = Trainer(devices=-1,
                           accelerator="gpu",
-                          strategy=DDPStrategy(
+                          strategy=DDPPlugin(
                               find_unused_parameters=find_unused_parameters),
                           logger=tb_logger,
                           max_epochs=training_epoch,
@@ -147,7 +147,7 @@ def train_from_folder(
     else:
         trainer = Trainer(devices=-1,
                           accelerator="gpu",
-                          strategy=DDPStrategy(
+                          strategy=DDPPlugin(
                               find_unused_parameters=find_unused_parameters),
                           logger=tb_logger,
                           max_epochs=training_epoch,

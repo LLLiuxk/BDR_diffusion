@@ -320,13 +320,14 @@ class ResnetBlock(nn.Module):
     
 
 class ResnetBlock1(nn.Module):
-    def __init__(self, world_dims: int, dim_in: int, dim_out: int, emb_dim: int, dropout: float = 0.1,):
+    def __init__(self, world_dims: int, dim_in: int, dim_out: int, emb_dim: int, dropout: float = 0.1,use_text_condition: bool = True):
         super().__init__()
         self.world_dims = world_dims
         self.time_mlp = nn.Sequential(
             activation_function(),
             nn.Linear(emb_dim, 2*dim_out)
         )
+        self.use_text_condition = use_text_condition
         if self.use_text_condition:
             self.text_mlp = nn.Sequential(
                 activation_function(),

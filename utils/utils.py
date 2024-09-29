@@ -2,6 +2,7 @@ from inspect import isfunction
 import os
 import argparse
 import glob
+import numpy as np
 
 VIT_MODEL = 'vit_huge_patch14_224_clip_laion2b'
 VIT_FEATURE_CHANNEL = 1280
@@ -91,3 +92,20 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
+
+def get_voxel_coordinates(resolution=32, size=1, center=0, padding=True, homogeneous=True):
+    if type(center) == int:
+        center = (center, center, center)
+    points = np.meshgrid(
+        np.linspace(center[0] - size, center[0] + size, resolution),
+        np.linspace(center[1] - size, center[1] + size, resolution),
+        np.linspace(center[2] - size, center[2] + size, resolution)
+    )
+    points = np.stack(points)
+    points = np.swapaxes(points, 1, 2)
+    points = points.reshape(3, -1).transpose()
+    if padding:
+        points = points * (resolution - 1)/resolution
+    if homogeneous:
+        points = np.concatenate([points, np.ones((points.shape[0], 1))], 1)
+    return points

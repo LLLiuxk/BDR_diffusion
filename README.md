@@ -7,8 +7,8 @@ conda activate bdr_diffusion
 
 conda install pytorch==1.9.0 torchvision==0.10.0 cudatoolkit=11.3 -c pytorch -c conda-forge
 
-
-pip install tqdm fire einops ocnn scikit-image==0.18.2 scikit-learn==0.24.2 pytorch-lightning==1.6.1
+conda install tqdm fire einops scikit-image==0.18.2 scikit-learn==0.24.2 pytorch-lightning==1.6.1
+pip install ocnn
 ```
 
 ## Usage

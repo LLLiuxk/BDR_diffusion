@@ -11,9 +11,9 @@ from pytorch_lightning import loggers as pl_loggers
 from utils.utils import ensure_directory, run, get_tensorboard_dir, find_best_epoch
 from utils.shapenet_utils import snc_category_to_synth_id_all
 import torch
-print(torch.cuda.device_count())
+
 def train_from_folder(
-    img_folder: str = "/home/dataset/",
+    img_folder: str = "/mnt/data/shared/lxk/data",
     data_class: str = "chair",
     results_folder: str = './results',
     name: str = "model",
@@ -54,6 +54,8 @@ def train_from_folder(
     else:
         debug = False
 
+    # print(img_folder)
+    # print("cuda num: ", torch.cuda.device_count())
     data_classes = list(snc_category_to_synth_id_all.keys())
     data_classes.extend(["debug","microstructure", "all"])
     assert data_class in data_classes

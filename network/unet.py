@@ -20,8 +20,8 @@ class UNetModel(nn.Module):
                  kernel_size: float = 1.0,
                  use_sketch_condition: bool = True,
                  use_text_condition: bool = True,
-                 vit_global: bool = False,
-                 vit_local: bool = True,
+                 # vit_global: bool = False,
+                 # vit_local: bool = True,
                  ):
         super().__init__()
         self.use_sketch_condition = use_sketch_condition

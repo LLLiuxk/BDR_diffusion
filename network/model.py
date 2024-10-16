@@ -71,7 +71,8 @@ class myDiffusion(nn.Module):
             dim_mults=channel_mult, dropout=dropout,
             kernel_size=kernel_size,
             world_dims=2,
-            num_heads=num_heads, vit_global=vit_global, vit_local=vit_local,
+            num_heads=num_heads,
+            # vit_global=vit_global, vit_local=vit_local,
             attention_resolutions=tuple(attention_ds), with_attention=with_attention,
             verbose=verbose)
         self.vit_global = vit_global
@@ -121,7 +122,7 @@ class myDiffusion(nn.Module):
         image_size = self.image_size
         shape = (batch_size, 1, image_size, image_size)
         
-        from utils.condition_data import white_image_feature, an_object_feature
+        # from utils.condition_data import white_image_feature, an_object_feature
         batch, device = shape[0], self.device
 
         time_pairs = self.get_sampling_timesteps(
@@ -194,7 +195,7 @@ class myDiffusion(nn.Module):
         image_size = self.image_size
         shape = (batch_size, 1, image_size, image_size)
         
-        from utils.condition_data import white_image_feature, an_object_feature
+        # from utils.condition_data import white_image_feature, an_object_feature
         batch, device = shape[0], self.device
 
         time_pairs = self.get_sampling_timesteps(

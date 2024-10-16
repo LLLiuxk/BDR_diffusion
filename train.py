@@ -13,7 +13,7 @@ from utils.shapenet_utils import snc_category_to_synth_id_all
 import torch
 
 def train_from_folder(
-    img_folder: str = "/mnt/data/shared/lxk/data",
+    img_folder: str = "/mnt/data/shared/lxk/BDR_diffusion/data",
     data_class: str = "chair",
     results_folder: str = './results',
     name: str = "model",

@@ -1,13 +1,13 @@
 import copy
-from utils.utils import set_requires_grad
+from utils.utils import set_requires_grad,update_moving_average
 from torch.utils.data import DataLoader
 from network.model_utils import EMA,make_sym,noise_sym,noise_sym_like
 from network.data_loader import ImageDataset
+from network.model import myDiffusion
+
 from pathlib import Path
 from torch.optim import AdamW,Adam
-from utils.utils import update_moving_average
 from pytorch_lightning import LightningModule
-from network.model import myDiffusion
 import torch.nn as nn
 import os
 import random

@@ -189,7 +189,6 @@ class CrossAttention(nn.Module):
 
                 attn_mask = torch.repeat_interleave(
                     self.get_attn_mask(pixels, vit_pixels, kernel_size), self.num_heads, 0)
-
             else:
                 attn_mask = None
         elif self.vit_global and not self.vit_local:

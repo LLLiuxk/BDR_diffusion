@@ -12,8 +12,9 @@ from utils.utils import ensure_directory, run, get_tensorboard_dir, find_best_ep
 from utils.shapenet_utils import snc_category_to_synth_id_all
 import torch
 
+os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"
 def train_from_folder(
-    img_folder: str = "/mnt/data/shared/lxk/BDR_diffusion/data/data1",
+    img_folder: str = "D:/Release Data/bdr_data_sim/data1/",
     data_class: str = "chair",
     results_folder: str = './results',
     name: str = "model",

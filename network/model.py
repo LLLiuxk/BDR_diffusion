@@ -260,6 +260,6 @@ class myDiffusion(nn.Module):
             gathered_samples.extend(mypost_process(mean).cpu().numpy())
             gathered_samples2.extend(mypost_process(x_start).cpu().numpy())
             img = mean + torch.sqrt(variance) * noise
-        mysave_as_npz(gathered_samples,"/home/fjx/fjx/generate_process2/output2.npz")
-        mysave_as_npz(gathered_samples2,"/home/fjx/fjx/generate_process2/output22.npz")
+        mysave_as_npz(gathered_samples,"../results/generate_process2/output2.npz")
+        mysave_as_npz(gathered_samples2,"../results/generate_process2/output22.npz")
         return img

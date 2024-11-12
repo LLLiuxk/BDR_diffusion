@@ -11,7 +11,7 @@ from pytorch_lightning import LightningModule
 import torch.nn as nn
 import os
 import random
-
+os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"
 
 class DiffusionModel(LightningModule):
     def __init__(
@@ -90,6 +90,7 @@ class DiffusionModel(LightningModule):
             self.num_workers = 1
         else:
             self.num_workers = os.cpu_count()
+        # print("os.cpu_count(): ",os.cpu_count(), "  ", self.num_workers)
 
     def reset_parameters(self):
         self.ema_model.load_state_dict(self.model.state_dict())
@@ -113,6 +114,7 @@ class DiffusionModel(LightningModule):
                                 num_workers=self.num_workers,
                                 batch_size=self.batch_size, shuffle=True, pin_memory=True, drop_last=False)
         self.iterations = len(dataloader)
+        print("data path: ", self.img_folder, "dataset num: ", _dataset.__len__(), "batch num: ", self.iterations)
         return dataloader
 
     def training_step(self, batch, batch_idx):
@@ -124,10 +126,10 @@ class DiffusionModel(LightningModule):
         img=batch["img"]
         cond=batch["cond"]
         bdr=batch["bdr"]
-
+        print(img.shape, cond.shape, bdr.shape)
         loss = self.model.training_loss(
             img, image_features, text_feature, projection_matrix, kernel_size=kernel_size, cond=cond,bdr=bdr).mean()
-
+        print("loss: ",loss)
         self.log("loss", loss.clone().detach().item(), prog_bar=True)
 
         opt = self.optimizers()
@@ -142,3 +144,83 @@ class DiffusionModel(LightningModule):
     def on_train_epoch_end(self):
         self.log("current_epoch", self.current_epoch)
         return super().on_train_epoch_end()
+
+
+if __name__ == '__main__':
+    model = DiffusionModel(
+        results_folder='./results/model',
+        img_folder = "D:/Release Data/bdr_data_sim/data1/",
+        data_class = "chair",
+        batch_size = 4,
+        lr = 2e-4,
+        image_size = 64,
+        noise_schedule = "linear",
+        base_channels = 32,
+        optimizier = "adam",
+        attention_resolutions = "4, 8",
+        with_attention = True,
+        num_heads = 4,
+        dropout = 0.1,
+        ema_rate = 0.999,
+        verbose = True,
+        save_every_epoch = 20,
+        kernel_size = 2.0,
+        training_epoch = 200,
+        gradient_clip_val = 1.,
+        debug = False,
+        image_feature_drop_out = 0.1,
+        view_information_ratio = 2.0,
+        data_augmentation = False,
+        vit_global = False,
+        vit_local = True,
+        split_dataset = False,
+        elevation_zero = False,
+        detail_view = False
+        )
+
+    from utils.utils import ensure_directory, run, get_tensorboard_dir, find_best_epoch
+
+    try:
+        log_dir = get_tensorboard_dir()
+    except Exception as e:
+        log_dir = './results/model'
+
+    from pytorch_lightning import Trainer
+    from pytorch_lightning.plugins import DDPPlugin
+    from pytorch_lightning import loggers as pl_loggers
+
+    find_unused_parameters = False
+    tb_logger = pl_loggers.TensorBoardLogger(
+        save_dir=log_dir,
+        version=None,
+        name='logs',
+        default_hp_metric=False
+    )
+
+    from pytorch_lightning.callbacks import ModelCheckpoint
+    save_last: bool = True
+    save_every_epoch: int = 20
+    checkpoint_callback = ModelCheckpoint(
+        monitor="current_epoch",
+        dirpath='./results/model',
+        filename="{epoch:02d}",
+        save_top_k=10,
+        save_last=save_last,
+        every_n_epochs=save_every_epoch,
+        mode="max",
+    )
+
+    trainer = Trainer(devices=-1,
+                      accelerator="gpu",
+                      strategy=DDPPlugin(
+                          find_unused_parameters=find_unused_parameters),
+                      logger=tb_logger,
+                      max_epochs=200,
+                      log_every_n_steps=10,
+                      callbacks=[checkpoint_callback])
+
+    # trainer.fit(model)
+    dataset1 = model.train_dataloader()
+    batch = next(iter(dataset1))
+    # dataset1[0]
+    model.training_step(batch, 2)

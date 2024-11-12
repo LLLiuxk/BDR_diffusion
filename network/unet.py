@@ -29,10 +29,8 @@ class UNetModel(nn.Module):
         channels = [base_channels, *
                     map(lambda m: base_channels * m, dim_mults)]
         in_out = list(zip(channels[:-1], channels[1:]))
-
         self.verbose = verbose
         emb_dim = base_channels * 4
-
         self.time_pos_emb = LearnedSinusoidalPosEmb(base_channels)
         self.time_emb = nn.Sequential(
             nn.Linear(base_channels + 1, emb_dim),
@@ -66,13 +64,11 @@ class UNetModel(nn.Module):
                 activation_function(),
                 nn.Linear(emb_dim, emb_dim)
             )
-
         self.input_emb = conv_nd(world_dims, 3, base_channels, 3, padding=1)
         self.downs = nn.ModuleList([])
         self.ups = nn.ModuleList([])
         num_resolutions = len(in_out)
         ds = 1
-
         for ind, (dim_in, dim_out) in enumerate(in_out):
             is_last = ind >= (num_resolutions - 1)
             res = image_size // ds
@@ -90,12 +86,10 @@ class UNetModel(nn.Module):
             ]))
             if not is_last:
                 ds *= 2
-
         mid_dim = channels[-1]
         res = image_size // ds
         self.mid_block1 = ResnetBlock1(
             world_dims, mid_dim, mid_dim, emb_dim=emb_dim, dropout=dropout, )
-        
         self.mid_cross_attn = our_Identity()
         self.mid_self_attn = nn.Sequential(
             normalization(mid_dim),
@@ -104,7 +98,6 @@ class UNetModel(nn.Module):
         ) if ds in attention_resolutions and with_attention else our_Identity()
         self.mid_block2 = ResnetBlock1(
             world_dims, mid_dim, mid_dim, emb_dim=emb_dim, dropout=dropout, )
-
         for ind, (dim_in, dim_out) in enumerate(reversed(in_out[1:])):
             is_last = ind >= (num_resolutions - 1)
             res = image_size // ds
@@ -123,12 +116,10 @@ class UNetModel(nn.Module):
             ]))
             if not is_last:
                 ds //= 2
-
         self.end = nn.Sequential(
             normalization(base_channels),
             activation_function()
         )
-
         self.out = conv_nd(world_dims, base_channels, 1, 3, padding=1)
 
     def forward(self, x, t, img_condition, text_condition, projection_matrix, x_self_cond=None, kernel_size=None, cond=None, bdr=None):
@@ -208,9 +199,96 @@ class UNetModel(nn.Module):
             x = upsample(x)
             if self.verbose:
                 print(x.shape)
-
         x = self.end(x)
         if self.verbose:
             print(x.shape)
-
         return self.out(x)
+
+
+# if __name__ == '__main__':
+    # image_size: int = 64
+    # channel_mult = (1, 2, 4, 8, 8)
+    # base_channels: int = 128
+    # attention_resolutions: str = "16,8"
+    # with_attention: bool = False
+    # num_heads: int = 4
+    # dropout: float = 0.0
+    # verbose: bool = True
+    # eps: float = 1e-6
+    # noise_schedule: str = "linear"
+    # kernel_size: float = 1.0
+    # vit_global: bool = False
+    # vit_local: bool = True
+    # attention_ds = []
+    #
+    # for res in attention_resolutions.split(","):
+    #     attention_ds.append(image_size // int(res))
+    #
+    # denoise_fn = UNetModel(
+    #     image_size=image_size,
+    #     base_channels=base_channels,
+    #     dim_mults=channel_mult, dropout=dropout,
+    #     kernel_size=kernel_size,
+    #     world_dims=2,
+    #     num_heads=num_heads,
+    #     attention_resolutions=tuple(attention_ds), with_attention=with_attention,
+    #     verbose=verbose)
+    #
+    #
+    #
+    #
+    # self, img, img_features, text_feature, projection_matrix, kernel_size = None, cond = None, bdr = None, *args, ** kwargs
+    #
+    #
+    # batch = img.shape[0]
+    #
+    # # classifier-free guidance
+    # cond[-int(batch / 8):, :] = -1
+    #
+    # times = torch.zeros(
+    #     (batch,), device=self.device).float().uniform_(0, 1)
+    # # noise = torch.randn_like(img)
+    # noise = noise_sym_like(img)
+    #
+    # noise_level = self.log_snr(times)
+    # padded_noise_level = right_pad_dims_to(img, noise_level)
+    # alpha, sigma = log_snr_to_alpha_sigma(padded_noise_level)
+    # noised_img = alpha * img + sigma * noise
+    # self_cond = None
+    # # self condition
+    # if random() < 0.5:
+    #     with torch.no_grad():
+    #         self_cond = self.denoise_fn(
+    #             noised_img, noise_level, img_features, text_feature, projection_matrix, kernel_size=kernel_size,
+    #             cond=cond, bdr=bdr).detach_()
+    #         self_cond = make_sym(self_cond, device=self.device)
+    # pred = self.denoise_fn(noised_img, noise_level,
+    #                        img_features, text_feature, projection_matrix, self_cond, kernel_size=kernel_size, cond=cond,
+    #                        bdr=bdr)
+    #
+    # return F.mse_loss(pred, img)
+    #
+    #
+    #
+    # batch_size = 2
+    # x = torch.randn(batch_size, 1, 64, 64)  # 输入图像
+    # t = torch.randn(batch_size, 1)  # 时间步
+    # img_condition = torch.randn(batch_size, 512, 8, 8)  # 图像条件
+    # text_condition = torch.randn(batch_size, 512)  # 文本条件
+    # projection_matrix = torch.randn(batch_size, 512, 512)  # 投影矩阵
+    # x_self_cond = torch.randn(batch_size, 1, 64, 64)  # 自条件
+    # kernel_size = 1.0
+    # cond = torch.randn(batch_size, 3)  # 条件
+    # bdr = torch.randn(batch_size, 1, 64, 64)  # 边界条件
+    #
+    # # 进行前向传播
+    # output = denoise_fn(x, t, img_condition, text_condition, projection_matrix,
+    #                x_self_cond, kernel_size, cond, bdr)
+    #
+    # # 检查输出形状是否正确
+    # expected_output_shape = (batch_size, 1, 64, 64)
+    # assert output.shape == expected_output_shape, f"Expected output shape: {expected_output_shape}, but got: {output.shape}"
+    #
+    # print("UNetModel test passed!")
+
+

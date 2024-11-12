@@ -72,11 +72,10 @@ class myDiffusion(nn.Module):
             kernel_size=kernel_size,
             world_dims=2,
             num_heads=num_heads,
-            vit_global=vit_global, vit_local=vit_local,
             attention_resolutions=tuple(attention_ds), with_attention=with_attention,
+            vit_global=vit_global, vit_local= vit_local,
             verbose=verbose)
-        self.vit_global = vit_global
-        self.vit_local = vit_local
+
 
     @property
     def device(self):

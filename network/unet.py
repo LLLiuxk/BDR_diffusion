@@ -133,7 +133,7 @@ class UNetModel(nn.Module):
 
         x = self.input_emb(x)
         t = self.time_emb(self.time_pos_emb(t))
-        print(x.shape, t.shape)
+        # print(x.shape, t.shape)
         # 
         null_index=torch.where(cond[:,0]==-1)
         cond_emb0=self.cond_emb0(self.cond_pos_emb0(cond[:,0]))
@@ -143,7 +143,7 @@ class UNetModel(nn.Module):
         cond_emb1[null_index]=self.null_emb1
         cond_emb2[null_index]=self.null_emb2
         cond_emb=[cond_emb0,cond_emb1,cond_emb2]
-        print(null_index, cond_emb)
+        # print(null_index, cond_emb)
 
         if self.use_text_condition:
             text_condition = self.text_emb(text_condition)

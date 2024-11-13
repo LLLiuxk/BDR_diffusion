@@ -162,10 +162,10 @@ if __name__ == '__main__':
         num_heads = 4,
         dropout = 0.1,
         ema_rate = 0.999,
-        verbose = True,
+        verbose = False,
         save_every_epoch = 20,
         kernel_size = 2.0,
-        training_epoch = 200,
+        training_epoch = 20,
         gradient_clip_val = 1.,
         debug = False,
         image_feature_drop_out = 0.1,
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     from pytorch_lightning.plugins import DDPPlugin
     from pytorch_lightning import loggers as pl_loggers
 
-    find_unused_parameters = False
+    find_unused_parameters = True
     tb_logger = pl_loggers.TensorBoardLogger(
         save_dir=log_dir,
         version=None,
@@ -215,7 +215,7 @@ if __name__ == '__main__':
                       strategy=DDPPlugin(
                           find_unused_parameters=find_unused_parameters),
                       logger=tb_logger,
-                      max_epochs=200,
+                      max_epochs=20,
                       log_every_n_steps=10,
                       callbacks=[checkpoint_callback])
 

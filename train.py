@@ -137,7 +137,7 @@ def train_from_folder(
         else:
             last_ckpt = "last.ckpt"
 
-    find_unused_parameters = False
+    find_unused_parameters = True
     if in_azure:
         trainer = Trainer(devices=-1,
                           accelerator="gpu",

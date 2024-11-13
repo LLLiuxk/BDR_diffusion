@@ -444,3 +444,10 @@ def noise_sym(shape,device=None):
 
 def noise_sym_like(x):
     return noise_sym(x.shape,device=x.device)
+
+
+if __name__ == '__main__':
+    cross_attn = our_Identity()
+    x = torch.randn(32, 768)
+    y = cross_attn(x, None, None, None)
+    print(y.shape)

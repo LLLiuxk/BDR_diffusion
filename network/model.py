@@ -90,7 +90,7 @@ class myDiffusion(nn.Module):
 
     def training_loss(self, img, img_features, text_feature, projection_matrix, kernel_size=None, cond=None,bdr=None, *args, **kwargs):
         batch = img.shape[0]
-
+        print("batch.shape: ", batch)
         # classifier-free guidance
         cond[-int(batch/8):,:]=-1
 
@@ -103,6 +103,7 @@ class myDiffusion(nn.Module):
         padded_noise_level = right_pad_dims_to(img, noise_level)
         alpha, sigma = log_snr_to_alpha_sigma(padded_noise_level)
         noised_img = alpha * img + sigma * noise
+        print("noised_img.shape: ", noised_img.shape)
         self_cond = None
         # self condition
         if random() < 0.5:
@@ -262,3 +263,5 @@ class myDiffusion(nn.Module):
         mysave_as_npz(gathered_samples,"../results/generate_process2/output2.npz")
         mysave_as_npz(gathered_samples2,"../results/generate_process2/output22.npz")
         return img
+
+# if __name__ == '__main__':

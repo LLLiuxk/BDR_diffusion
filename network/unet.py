@@ -18,8 +18,8 @@ class UNetModel(nn.Module):
                  image_condition_dim: int = VIT_FEATURE_CHANNEL,
                  text_condition_dim: int = CLIP_FEATURE_CHANNEL,
                  kernel_size: float = 1.0,
-                 use_sketch_condition: bool = True,
-                 use_text_condition: bool = True,
+                 use_sketch_condition: bool = False,
+                 use_text_condition: bool = False,
                  vit_global: bool = False,
                  vit_local: bool = True,
                  ):
@@ -133,7 +133,7 @@ class UNetModel(nn.Module):
 
         x = self.input_emb(x)
         t = self.time_emb(self.time_pos_emb(t))
-
+        print(x.shape, t.shape)
         # 
         null_index=torch.where(cond[:,0]==-1)
         cond_emb0=self.cond_emb0(self.cond_pos_emb0(cond[:,0]))
@@ -143,6 +143,7 @@ class UNetModel(nn.Module):
         cond_emb1[null_index]=self.null_emb1
         cond_emb2[null_index]=self.null_emb2
         cond_emb=[cond_emb0,cond_emb1,cond_emb2]
+        print(null_index, cond_emb)
 
         if self.use_text_condition:
             text_condition = self.text_emb(text_condition)
@@ -174,8 +175,9 @@ class UNetModel(nn.Module):
             x, img_condition, projection_matrix, kernel_size)
         x = self.mid_self_attn(x)
         if self.verbose:
-            print("cross attention at resolution: ",
-                  self.mid_cross_attn.image_size)
+            if type(self.mid_cross_attn) == CrossAttention:
+                print("cross attention at resolution: ",
+                      self.mid_cross_attn.image_size)
             print(x.shape)
         x = self.mid_block2(x, t, text_condition, cond_emb)
         if self.verbose:
@@ -195,7 +197,6 @@ class UNetModel(nn.Module):
                 if type(cross_attn) == CrossAttention:
                     print("cross attention at resolution: ",
                           cross_attn.image_size)
-                print(x.shape)
             x = upsample(x)
             if self.verbose:
                 print(x.shape)
@@ -205,7 +206,21 @@ class UNetModel(nn.Module):
         return self.out(x)
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
+    batch_size = 32
+    text_condition_dim = 768
+    text_condition = torch.ones(batch_size, text_condition_dim)
+
+    text_emb = nn.Sequential(
+        nn.Linear(768, 256),
+        activation_function(),
+        nn.Linear(256, 256))
+
+    test = text_emb(text_condition)
+    print(test)
+
+
+
     # image_size: int = 64
     # channel_mult = (1, 2, 4, 8, 8)
     # base_channels: int = 128

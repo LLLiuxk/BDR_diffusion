@@ -105,7 +105,7 @@ class DiffusionModel(LightningModule):
             optimizer = Adam(self.model.parameters(), lr=self.lr)
         else:
             raise NotImplementedError
-        return [optimizer]
+        return optimizer
 
     def train_dataloader(self):
         _dataset = ImageDataset(resolution=self.image_size,
@@ -132,7 +132,7 @@ class DiffusionModel(LightningModule):
         print("loss: ",loss)
         self.log("loss", loss.clone().detach().item(), prog_bar=True)
 
-        opt = self.optimizers()
+        opt = self.configure_optimizers()
         opt.zero_grad()
         self.manual_backward(loss)
         nn.utils.clip_grad_norm_(
@@ -219,8 +219,8 @@ if __name__ == '__main__':
                       log_every_n_steps=10,
                       callbacks=[checkpoint_callback])
 
-    # trainer.fit(model)
-    dataset1 = model.train_dataloader()
-    batch = next(iter(dataset1))
-    # dataset1[0]
-    model.training_step(batch, 2)
+    trainer.fit(model)
+    # dataset1 = model.train_dataloader()
+    # batch = next(iter(dataset1))
+    # # dataset1[0]
+    # model.training_step(batch, 2)

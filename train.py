@@ -33,7 +33,7 @@ def train_from_folder(
     save_last: bool = True,
     verbose: bool = False,
     training_epoch: int = 200,
-    in_azure: bool = False,
+    in_azure: bool = True,
     new: bool = True,
     continue_training: bool = False,
     debug: bool = False,

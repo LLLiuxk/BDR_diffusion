@@ -12,7 +12,7 @@ from utils.utils import ensure_directory, run, get_tensorboard_dir, find_best_ep
 
 # os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"
 def train_from_folder(
-    img_folder: str = "D:/Release Data/bdr_data_sim/data1/",
+    img_folder: str = "D:/Release Data/bdr_data_sim/data2/",
     data_class: str = "microstructure",
     results_folder: str = './results',
     name: str = "model",

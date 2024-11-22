@@ -18,14 +18,14 @@ class UNetModel(nn.Module):
                  image_condition_dim: int = VIT_FEATURE_CHANNEL,
                  text_condition_dim: int = CLIP_FEATURE_CHANNEL,
                  kernel_size: float = 1.0,
-                 use_sketch_condition: bool = False,
-                 use_text_condition: bool = False,
+                 # use_sketch_condition: bool = False,
+                 # use_text_condition: bool = False,
                  vit_global: bool = False,
                  vit_local: bool = True,
                  ):
         super().__init__()
-        self.use_sketch_condition = use_sketch_condition
-        self.use_text_condition = use_text_condition
+        # self.use_sketch_condition = use_sketch_condition
+        # self.use_text_condition = use_text_condition
         channels = [base_channels, *
                     map(lambda m: base_channels * m, dim_mults)]
         in_out = list(zip(channels[:-1], channels[1:]))
@@ -58,12 +58,12 @@ class UNetModel(nn.Module):
         self.null_emb0=nn.Parameter(torch.zeros(emb_dim))
         self.null_emb1=nn.Parameter(torch.zeros(emb_dim))
         self.null_emb2=nn.Parameter(torch.zeros(emb_dim))
-        if self.use_text_condition:
-            self.text_emb = nn.Sequential(
-                nn.Linear(text_condition_dim, emb_dim),
-                activation_function(),
-                nn.Linear(emb_dim, emb_dim)
-            )
+        # if self.use_text_condition:
+        #     self.text_emb = nn.Sequential(
+        #         nn.Linear(text_condition_dim, emb_dim),
+        #         activation_function(),
+        #         nn.Linear(emb_dim, emb_dim)
+        #     )
         self.input_emb = conv_nd(world_dims, 3, base_channels, 3, padding=1)
         self.downs = nn.ModuleList([])
         self.ups = nn.ModuleList([])
@@ -145,8 +145,8 @@ class UNetModel(nn.Module):
         cond_emb=[cond_emb0,cond_emb1,cond_emb2]
         # print(null_index, cond_emb)
 
-        if self.use_text_condition:
-            text_condition = self.text_emb(text_condition)
+        # if self.use_text_condition:
+        #     text_condition = self.text_emb(text_condition)
         h = []
 
         for resnet, cross_attn, self_attn, downsample in self.downs:
@@ -175,8 +175,8 @@ class UNetModel(nn.Module):
             x, img_condition, projection_matrix, kernel_size)
         x = self.mid_self_attn(x)
         if self.verbose:
-            if type(self.mid_cross_attn) == CrossAttention:
-                print("cross attention at resolution: ",
+            # if type(self.mid_cross_attn) == CrossAttention:
+            print("cross attention at resolution: ",
                       self.mid_cross_attn.image_size)
             print(x.shape)
         x = self.mid_block2(x, t, text_condition, cond_emb)

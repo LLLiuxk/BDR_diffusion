@@ -9,36 +9,34 @@ from pytorch_lightning.plugins import DDPPlugin
 from utils.utils import exists
 from pytorch_lightning import loggers as pl_loggers
 from utils.utils import ensure_directory, run, get_tensorboard_dir, find_best_epoch
-from utils.shapenet_utils import snc_category_to_synth_id_all
-import torch
 
-os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"
+# os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"
 def train_from_folder(
     img_folder: str = "D:/Release Data/bdr_data_sim/data1/",
-    data_class: str = "chair",
+    data_class: str = "microstructure",
     results_folder: str = './results',
     name: str = "model",
-    image_size: int = 64,
+    image_size: int = 128,
     base_channels: int = 32,
-    optimizier: str = "adam",
+    optimizier: str = "adamw",
     attention_resolutions: str = "4, 8",
-    lr: float = 2e-4,
-    batch_size: int = 4,
+    lr: float = 1e-4,
+    batch_size: int = 256,
     with_attention: bool = True,
     num_heads: int = 4,
     dropout: float = 0.1,
     noise_schedule: str = "linear",
     kernel_size: float = 2.0,
     ema_rate: float = 0.999,
-    save_last: bool = True,
+    save_last: bool = False,
     verbose: bool = False,
-    training_epoch: int = 200,
+    training_epoch: int = 20,
     in_azure: bool = True,
     new: bool = True,
     continue_training: bool = False,
     debug: bool = False,
     seed: int = 777,
-    save_every_epoch: int = 20,
+    save_every_epoch: int = 10,
     gradient_clip_val: float = 1.,
     feature_drop_out: float = 0.1,
     data_augmentation: bool = False,
@@ -55,10 +53,8 @@ def train_from_folder(
     else:
         debug = False
 
-    # print(img_folder)
-    # print("cuda num: ", torch.cuda.device_count())
-    data_classes = list(snc_category_to_synth_id_all.keys())
-    data_classes.extend(["debug","microstructure", "all"])
+    data_classes = []
+    data_classes.extend(["debug", "microstructure", "all"])
     assert data_class in data_classes
 
     results_folder = results_folder + "/" + name
@@ -137,7 +133,7 @@ def train_from_folder(
         else:
             last_ckpt = "last.ckpt"
 
-    find_unused_parameters = True
+    find_unused_parameters = False
     if in_azure:
         trainer = Trainer(devices=-1,
                           accelerator="gpu",

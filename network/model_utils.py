@@ -276,62 +276,63 @@ def clamp_pixel(pixels):
     return torch.clip(torch.round(pixels), 0, 223)
 
 
-class ResnetBlock(nn.Module):
-    def __init__(self, world_dims: int, dim_in: int, dim_out: int, emb_dim: int, dropout: float = 0.1,
-                 use_text_condition: bool = True):
-        super().__init__()
-        self.world_dims = world_dims
-        self.time_mlp = nn.Sequential(
-            activation_function(),
-            nn.Linear(emb_dim, dim_out)
-        )
-        self.use_text_condition = use_text_condition
-        if self.use_text_condition:
-            self.text_mlp = nn.Sequential(
-                activation_function(),
-                nn.Linear(emb_dim, dim_out),
-            )
-
-        self.block1 = nn.Sequential(
-            normalization(dim_in),
-            activation_function(),
-            conv_nd(world_dims, dim_in, dim_out, 3, padding=1),
-        )
-        self.block2 = nn.Sequential(
-            normalization(dim_out),
-            activation_function(),
-            nn.Dropout(dropout),
-            zero_module(conv_nd(world_dims, dim_out, dim_out, 3, padding=1)),
-        )
-        self.res_conv = conv_nd(
-            world_dims, dim_in, dim_out, 1) if dim_in != dim_out else nn.Identity()
-
-    def forward(self, x, time_emb, text_condition=None):
-        h = self.block1(x)
-        if self.use_text_condition:
-            h = h * self.text_mlp(text_condition)[(...,) +
-                                                  (None, )*self.world_dims] + self.time_mlp(time_emb)[(...,) + (None, )*self.world_dims]
-        else:
-            h += self.time_mlp(time_emb)[(...,) + (None, )*self.world_dims]
-
-        h = self.block2(h)
-        return h + self.res_conv(x)
+# class ResnetBlock(nn.Module):
+#     def __init__(self, world_dims: int, dim_in: int, dim_out: int, emb_dim: int, dropout: float = 0.1,
+#                  use_text_condition: bool = True):
+#         super().__init__()
+#         self.world_dims = world_dims
+#         self.time_mlp = nn.Sequential(
+#             activation_function(),
+#             nn.Linear(emb_dim, dim_out)
+#         )
+#         self.use_text_condition = use_text_condition
+#         if self.use_text_condition:
+#             self.text_mlp = nn.Sequential(
+#                 activation_function(),
+#                 nn.Linear(emb_dim, dim_out),
+#             )
+#
+#         self.block1 = nn.Sequential(
+#             normalization(dim_in),
+#             activation_function(),
+#             conv_nd(world_dims, dim_in, dim_out, 3, padding=1),
+#         )
+#         self.block2 = nn.Sequential(
+#             normalization(dim_out),
+#             activation_function(),
+#             nn.Dropout(dropout),
+#             zero_module(conv_nd(world_dims, dim_out, dim_out, 3, padding=1)),
+#         )
+#         self.res_conv = conv_nd(
+#             world_dims, dim_in, dim_out, 1) if dim_in != dim_out else nn.Identity()
+#
+#     def forward(self, x, time_emb, text_condition=None):
+#         h = self.block1(x)
+#         if self.use_text_condition:
+#             h = h * self.text_mlp(text_condition)[(...,) +
+#                                                   (None, )*self.world_dims] + self.time_mlp(time_emb)[(...,) + (None, )*self.world_dims]
+#         else:
+#             h += self.time_mlp(time_emb)[(...,) + (None, )*self.world_dims]
+#
+#         h = self.block2(h)
+#         return h + self.res_conv(x)
     
 
 class ResnetBlock1(nn.Module):
-    def __init__(self, world_dims: int, dim_in: int, dim_out: int, emb_dim: int, dropout: float = 0.1,use_text_condition: bool = True):
+    # def __init__(self, world_dims: int, dim_in: int, dim_out: int, emb_dim: int, dropout: float = 0.1,use_text_condition: bool = True):
+    def __init__(self, world_dims: int, dim_in: int, dim_out: int, emb_dim: int, dropout: float = 0.1, ):
         super().__init__()
         self.world_dims = world_dims
         self.time_mlp = nn.Sequential(
             activation_function(),
             nn.Linear(emb_dim, 2*dim_out)
         )
-        self.use_text_condition = use_text_condition
-        if self.use_text_condition:
-            self.text_mlp = nn.Sequential(
-                activation_function(),
-                nn.Linear(emb_dim, dim_out),
-            )
+        # self.use_text_condition = use_text_condition
+        # if self.use_text_condition:
+        #     self.text_mlp = nn.Sequential(
+        #         activation_function(),
+        #         nn.Linear(emb_dim, dim_out),
+        #     )
         self.cond_mlp0 = nn.Sequential(
                 activation_function(),
                 nn.Linear(emb_dim, 2*dim_out),

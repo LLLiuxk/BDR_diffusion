@@ -21,7 +21,7 @@ def train_from_folder(
     optimizier: str = "adamw",
     attention_resolutions: str = "4, 8",
     lr: float = 1e-4,
-    batch_size: int = 256,
+    batch_size: int = 8,
     with_attention: bool = True,
     num_heads: int = 4,
     dropout: float = 0.1,

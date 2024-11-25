@@ -22,6 +22,7 @@ def generate_conditional_bdr_json(
     bdr_type=6,
 ):
     model_name, model_id = model_path.split('/')[-2], model_path.split('/')[-1]
+    print(model_name, model_id)
     discrete_diffusion = DiffusionModel.load_from_checkpoint(model_path).cuda()
     postfix = f"{model_name}_{model_id}_{ema}_{steps}_{truncated_time}_conditional"
     root_dir = os.path.join(output_path, postfix)
@@ -53,6 +54,8 @@ def generate_conditional_bdr_json(
         bdr[:,idx]=-1
         mybdr[i]=bdr[np.newaxis,:]
 
+    # print("mybdr: ", mybdr)
+
     ensure_directory(root_dir)
     batches = num_to_groups(ctensor.shape[1], 16)
     generator = discrete_diffusion.ema_model if ema else discrete_diffusion.model
@@ -65,7 +68,8 @@ def generate_conditional_bdr_json(
             batch_size=batch, steps=steps, truncated_index=truncated_time,C=ctensor[:,j:j+batch].T,mybdr=mybdr[:batch])
         gathered_samples.extend(post_process(res_tensor).cpu().numpy())
         j+=16
-    save_as_npz(gathered_samples,output_path)
+    print(len(gathered_samples),"   ", gathered_samples[0], "   ", root_dir)
+    save_as_npz(gathered_samples, root_dir+"/generated_samples.npz")
 
 
 def post_process(res_tensor):
@@ -82,11 +86,12 @@ if __name__ == '__main__':
 
     import argparse
     parser = argparse.ArgumentParser(description='generate something')
-    parser.add_argument("--generate_method", type=str, default='generate_conditional_bdr_json',
+    parser.add_argument("--generate_method", type=str, default='generate_based_on_bdr_json',
+                        # default='generate_conditional_bdr_json',
                         help="please choose :\n \
                             1. 'generate_conditional_bdr_json' \n  \n \ ")
 
-    parser.add_argument("--model_path", type=str, required=True)
+    parser.add_argument("--model_path", type=str, default="C:/Users/Liuxk/PycharmProjects/BDR_diffusion/results/model/epoch=19.ckpt")
     parser.add_argument("--output_path", type=str, default="./outputs")
     parser.add_argument("--ema", type=str2bool, default=True)
     parser.add_argument("--num_generate", type=int, default=16)
@@ -101,11 +106,12 @@ if __name__ == '__main__':
     parser.add_argument("--kernel_size", type=float, default=4.)
     parser.add_argument("--verbose", type=str2bool, default=False)
     # json file of elastic tensors
-    parser.add_argument("--json_path", type=str, default="")
-    parser.add_argument("--bdr_path", type=str, default="")
+    parser.add_argument("--json_path", type=str, default="C:/Users/Liuxk/PycharmProjects/BDR_diffusion/sample/nsample.json")
+    parser.add_argument("--bdr_path", type=str, default="C:/Users/Liuxk/PycharmProjects/BDR_diffusion/bdr")
     parser.add_argument("--bdr_type",type=int,default=2)
 
     args = parser.parse_args()
+    print(args)
     method = (args.generate_method).lower()
     ensure_directory(args.output_path)
 

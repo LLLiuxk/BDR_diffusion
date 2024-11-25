@@ -11,7 +11,7 @@ from pytorch_lightning import LightningModule
 import torch.nn as nn
 import os
 import random
-os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"
+# os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"
 
 class DiffusionModel(LightningModule):
     def __init__(
@@ -184,7 +184,7 @@ if __name__ == '__main__':
     try:
         log_dir = get_tensorboard_dir()
     except Exception as e:
-        log_dir = './results/model/2'
+        log_dir = './results/model'
 
     from pytorch_lightning import Trainer
     from pytorch_lightning.plugins import DDPPlugin
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     save_every_epoch: int = 20
     checkpoint_callback = ModelCheckpoint(
         monitor="current_epoch",
-        dirpath='./results/model/2',
+        dirpath='./results/model',
         filename="{epoch:02d}",
         save_top_k=10,
         save_last=save_last,

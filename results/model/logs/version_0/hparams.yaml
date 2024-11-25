@@ -1,0 +1,28 @@
+attention_resolutions: 4, 8
+base_channels: 32
+batch_size: 256
+data_augmentation: false
+data_class: microstructure
+debug: false
+detail_view: false
+dropout: 0.1
+elevation_zero: false
+ema_rate: 0.999
+gradient_clip_val: 1.0
+image_feature_drop_out: 0.1
+image_size: 128
+img_folder: D:/Release Data/bdr_data_sim/data1/
+kernel_size: 2.0
+lr: 0.0001
+noise_schedule: linear
+num_heads: 4
+optimizier: adamw
+results_folder: ./results/model
+save_every_epoch: 10
+split_dataset: false
+training_epoch: 20
+verbose: false
+view_information_ratio: 2.0
+vit_global: false
+vit_local: true
+with_attention: true
